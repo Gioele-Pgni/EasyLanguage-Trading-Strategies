@@ -1,0 +1,90 @@
+{ 
+  === CODE ===
+  Efficiency Ratio Filter – Kaufman
+  Logic: Entry signals are filtered by Efficiency Ratio (trend strength).
+  ER > threshold = trending market (take breakout signals)
+}
+
+Inputs:
+    ERLen(10),           { lookback for Efficiency Ratio calculation }
+    ERThreshold(0.5),    { minimum ER to consider as trending (0.5 = 50%) }
+    FastLen(10),
+    SlowLen(30),
+    size(1);
+
+Variables:
+    ER(0),
+    FastMA(0),
+    SlowMA(0);
+
+ER = (Close - Close[ERLen]) / Summation(AbsValue(Close - Close[1]), ERLen);
+ER = AbsValue(ER);  { 0 to 1: 0 = no direction, 1 = perfect trend }
+
+FastMA = Average(Close, FastLen);
+SlowMA = Average(Close, SlowLen);
+
+    If ER >= ERThreshold And FastMA Crosses Over SlowMA Then
+        Buy size contract next bar at market;
+
+    If ER >= ERThreshold And FastMA Crosses Under SlowMA Then
+        SellShort size contract next bar at market;
+
+
+If MarketPosition = 1 Then Begin
+    If FastMA Crosses Under SlowMA Then
+        Sell size contract next bar at market;
+End;
+
+If MarketPosition = -1 Then Begin
+    If FastMA Crosses Over SlowMA Then
+        BuyToCover size contract next bar at market;
+End;
+
+
+{ 
+  === ANALYSIS ===
+  # Efficiency Ratio Filter (Kaufman)
+
+  **Source file:** `Efficiency_Ratio_Filter.txt`
+
+  ## Implemented Logic
+
+  **Efficiency Ratio (ER):**
+  - Measures trend efficiency: `ER = |Close - Close[ERLen]| / Sum(|Close - Close[1]|, ERLen)`
+  - Returns a value between 0 and 1:
+    - 0 = no net direction (perfectly ranging market)
+    - 1 = perfect trend (price moves in one direction without pullbacks)
+  - Used as a filter to avoid trading in choppy markets.
+
+  **Entry:**
+  - Only when `ER >= ERThreshold` (trending market condition).
+  - Signal: crossover of two moving averages (Fast/Slow).
+  - Long on fast MA crossing above slow MA.
+  - Short on fast MA crossing below slow MA.
+
+  **Exit:**
+  - When fast MA crosses opposite direction (momentum shift).
+  - Whichever occurs first exits the position.
+
+  ## Why It's Interesting
+
+  - **Adaptive filter:** ER automatically adapts to market conditions – trades only when trend is efficient.
+  - **Reduces whipsaws:** Prevents trading in choppy/ranging markets where trend following strategies lose money.
+  - **Quantitative approach:** Based on mathematical measure of directionality, not subjective judgment.
+  - **Introduced by Perry Kaufman:** Used in his adaptive moving average (KAMA) and trading systems.
+  - **Simple integration:** Can be used as a filter for any existing strategy (breakout, MA crossover, etc.).
+
+  ## References
+
+  - Perry Kaufman, *Trading Systems and Methods* (various editions).
+  - Kaufman's Adaptive Moving Average (KAMA) concept.
+  - Used in many algorithmic trading systems as a trend filter.
+
+  ## Possible Variants
+
+  - Use ER to adapt the length of moving averages (faster when ER high, slower when ER low).
+  - Combine with breakout systems (e.g., only take breakouts when ER > threshold).
+  - Use ER as a mean reversion filter (trade reversals only when ER is low).
+  - Add ATR-based stop loss for risk management.
+  - Display ER as an indicator or histogram for visual reference.
+}
