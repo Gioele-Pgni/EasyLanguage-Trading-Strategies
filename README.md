@@ -2,15 +2,15 @@
 
 Welcome to the official repository of algorithmic trading strategies written in EasyLanguage. This project was established with the objective of creating a structured collection of algorithms for systematic trading, covering a range of methodological approaches and investment styles.
 
+
 ## Project Objectives
 
 - **Educational**: Provide concrete examples of how to translate trading ideas into executable code.
 - **Research**: Offer a robust baseline for backtesting and optimization across multiple markets (Forex, Futures, Equities).
 - **Hybridization**: Demonstrate how to combine different approaches (technical, statistical, and machine learning) within the same ecosystem.
 
-## Included Approaches
 
-The strategies are organized into folders by methodology:
+## Included Approaches
 
 | Category | Description | Included Examples |
 | **Trend Following** | Exploits strong directional movements. Includes volatility filters to reduce false signals. | *Donchian Breakout, EMA Crossovers with trailing stops.* |
