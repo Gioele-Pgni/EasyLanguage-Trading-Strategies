@@ -1,0 +1,64 @@
+{ 
+  === CODE ===
+  Inside Bar Breakout
+  Logic: Detect an inside bar (current bar within previous bar's range).
+  Enter when price breaks above the inside bar's high or below its low.
+}
+
+Inputs:
+    size(1);                
+
+Variables:
+    Inside_Bar(False);
+
+Inside_Bar = High <= High[1] And Low >= Low[1];
+
+If MarketPosition = 0 Then Begin
+    If Inside_Bar Then begin
+        Buy size contract next bar at Highest(high,5) stop;
+        SellShort size contract next bar at Lowest(Low,5) stop;
+    End;
+End;
+
+setexitonclose;
+
+{ 
+  === ANALYSIS ===
+  # Inside Bar Breakout
+
+  **Source file:** `Inside_Bar_Breakout.txt`
+
+  ## Implemented Logic
+
+  - **Inside Bar Definition:** A bar is "inside" when its high is ≤ the previous bar's high and its low is ≥ the previous bar's low (i.e., fully contained within the previous bar's range).
+  
+  - **Entry:** When an inside bar is detected, two stop orders are placed for the next bar:
+    - **Long Entry:** `Buy stop` at the highest high of the last 5 bars (`Highest(High,5)`)
+    - **Short Entry:** `Sell short stop` at the lowest low of the last 5 bars (`Lowest(Low,5)`)
+  
+  - **Exit:** All positions are closed at the end of the session using `setexitonclose`.
+
+  ## Key Differences from Standard Inside Bar Breakout
+
+  - **Wider breakout levels:** Instead of using the inside bar's own high/low, the strategy uses the highest/lowest of the last 5 bars. This makes the breakout level more "distant" and potentially more significant.
+  - **No opposite breakout exit:** The strategy uses a fixed end-of-day exit (`setexitonclose`) rather than exiting on an opposite breakout.
+  - **Pure breakout entry:** Entry is triggered when price touches the predetermined level (stop orders), not after a close confirmation.
+
+  ## Why It's Interesting
+
+  - **Combines two concepts:** Inside bar (consolidation pattern) + breakout of recent range (last 5 bars).
+  - **Reduces false signals:** By using a wider range (5 bars) instead of just the inside bar, the strategy avoids entering on minor breakouts.
+  - **End-of-day exit:** Eliminates overnight risk and simplifies the system.
+  - **No parameters to optimize:** The only input is `size` – the strategy is fully defined by its logic.
+
+  ## References
+
+  - Toby Crabel, *Day Trading with Short Term Price Patterns and Opening Range Breakout* – narrow range patterns.
+  - Classic inside bar concepts in technical analysis.
+
+  ## Possible Variants
+
+  - Add a volume filter (breakout requires volume > average).
+  - Add a trend filter (e.g., only take long breakouts when price > 200 EMA).
+  - Adjust the lookback period (e.g., use 10 bars instead of 5).
+}
