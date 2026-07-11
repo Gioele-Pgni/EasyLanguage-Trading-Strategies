@@ -1,0 +1,96 @@
+{ 
+  === CODE ===
+  RSI Mean Reversion
+  Logic: Buy when RSI is oversold (< 30), sell when RSI is overbought (> 70).
+  Exit when RSI returns to opposite extreme.
+}
+
+Inputs: 
+    RSILen(14),         
+    Oversold(30),
+    Overbought(70),
+    size(1),
+    multi(2),
+    entryH(2),
+    entryL(2);
+
+Variables:
+    RSIValue(0),
+    BuySignal(False),
+    SellSignal(False);
+
+value1 = entryprice - (averagetruerange(14) * multi);
+value2 = entryprice + (averagetruerange(14) * multi);
+RSIValue = RSI(Close, RSILen);
+
+If RSIValue < Oversold  Then
+    Buy size contract next bar at highest(High,entryH) stop;
+        
+If RSIValue > Overbought  Then 
+    SellShort size contract next bar at lowest(low,entryL) stop;
+
+if marketposition = 1 then begin
+    if RSIValue > Overbought then sell size contract next bar market;
+end;
+
+if marketposition = -1 then begin
+    if RSIValue < Oversold then buytocover size contract next bar market;
+end;
+
+if marketposition <> 0 then begin 
+    sell size contract next bar value1 stop;
+    buytocover size contract next bar at value2 stop;
+end;
+
+
+{ 
+  === ANALYSIS ===
+  # RSI Mean Reversion (modified version)
+
+  **Source file:** `RSI_Mean_Reversion.txt`
+
+  ## Implemented Logic
+
+  **Long Entry:**
+  - Condition: RSI falls below the `Oversold` level (default 30)
+  - Order: `Buy stop` at the highest high of the last `entryH` bars (`Highest(High, entryH)`)
+  - The order is triggered only if price reaches that level (breakout confirmation).
+
+  **Short Entry:**
+  - Condition: RSI rises above the `Overbought` level (default 70)
+  - Order: `SellShort stop` at the lowest low of the last `entryL` bars (`Lowest(Low, entryL)`)
+  - The order is triggered only if price reaches that level.
+
+  **Exit Long:**
+  - When RSI rises above `Overbought` (70) → exit long at market.
+  - Alternative: ATR stop loss → `sell` at `EntryPrice - (ATR * multi)`.
+
+  **Exit Short:**
+  - When RSI falls below `Oversold` (30) → exit short at market.
+  - Alternative: ATR stop loss → `buytocover` at `EntryPrice + (ATR * multi)`.
+
+  **ATR Stop Loss:**
+  - For both positions, a stop loss is placed based on:
+    - Long: `EntryPrice - (AverageTrueRange(14) * multi)`
+    - Short: `EntryPrice + (AverageTrueRange(14) * multi)`
+  - The stop is active as long as the position is open.
+
+  ## Why It's Interesting
+
+  - **RSI + Breakout combination:** Entry is not triggered solely by RSI extreme levels; it also requires a price confirmation (breakout beyond the recent high/low). This reduces false signals in ranging markets.
+  - **Dual exit:** Exit at market when RSI reverses (opposite extreme) OR ATR stop loss. Whichever occurs first closes the position.
+  - **Dynamic stop loss:** ATR adapts the stop to current market volatility.
+  - **Additional parameters:** `entryH`/`entryL` allow you to adjust the breakout sensitivity.
+
+  ## References
+
+  - Welles Wilder, *New Concepts in Technical Trading Systems* (1978) – RSI and ATR.
+  - Classic mean reversion strategy.
+
+  ## Possible Variants
+
+  - Add a trend filter (e.g., 200 EMA) to avoid trading against the trend.
+  - Use RSI divergence as a stronger entry signal.
+  - Replace ATR stop with a dynamic trailing stop.
+  - Add a time stop (exit after X bars).
+}
