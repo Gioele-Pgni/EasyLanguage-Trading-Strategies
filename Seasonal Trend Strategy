@@ -1,0 +1,106 @@
+{ 
+  === CODE ===
+  Seasonal Trend Strategy (Multi-Month)
+  Logic: If the current month matches ANY of the target months, enter long if price is above moving average, short if below.
+  Exit when the current month is no longer in the target list.
+}
+
+
+// Warning! This strategy does not include risk management.
+
+Inputs:
+    Month1(1),           { first target month (1=January, ..., 12=December) }
+    Month2(0),           { second target month (0 = not used) }
+    Month3(0),           { third target month (0 = not used) }
+    Month4(0),           { fourth target month (0 = not used) }
+    MALength(20),        
+    size(1);             
+
+Variables:
+    MA(0),
+    CurrentMonth(0),
+    IsTargetMonth(False);
+
+MA = Average(Close, MALength);
+
+{ Current month }
+CurrentMonth = Month(Date);
+
+{ Check if current month matches any target month }
+IsTargetMonth = False;
+
+If Month1 > 0 And CurrentMonth = Month1 Then IsTargetMonth = True;
+If Month2 > 0 And CurrentMonth = Month2 Then IsTargetMonth = True;
+If Month3 > 0 And CurrentMonth = Month3 Then IsTargetMonth = True;
+If Month4 > 0 And CurrentMonth = Month4 Then IsTargetMonth = True;
+
+
+If IsTargetMonth And MarketPosition = 0 Then Begin
+    If Close > MA Then
+        Buy size contract next bar at market;
+    If Close < MA Then
+        SellShort size contract next bar at market;
+End;
+
+
+If Not IsTargetMonth And MarketPosition <> 0 Then Begin
+    If MarketPosition = 1 Then
+        Sell size contract next bar at market;
+    If MarketPosition = -1 Then
+        BuyToCover size contract next bar at market;
+End;
+
+
+{ 
+  === ANALYSIS ===
+  # Seasonal Trend Strategy (Multi-Month)
+
+  **Source file:** `Seasonal_Trend_Strategy.txt`
+
+  ## Implemented Logic
+
+  - **Entry condition:** The strategy trades when the current month matches ANY of the specified target months (up to 4).
+  - **Directional filter:** Within target months, it takes a long position if the closing price is above the moving average, and a short position if below.
+  - **Exit:** All positions are closed when the current month is no longer in the target list.
+
+  ## Why This Multi-Month Version Is Better
+
+  - **More flexibility:** You can combine multiple seasonal windows (e.g., "January effect" + "April strength" + "December rally").
+  - **Covers multiple opportunities:** Instead of waiting for a single month, the strategy can capture seasonality across the year.
+  - **Easier to test combinations:** For example, you can test "EUR/USD seasonal months" (April, May, September, December) all at once.
+  - **Reduced risk of overfitting:** Testing multiple months gives a more robust assessment of seasonal effects.
+
+  ## Input Parameters
+
+  | Parameter | Description |
+  |-----------|-------------|
+  | `Month1` - `Month4` | Target months (1=January, ..., 12=December). Set to 0 to disable. |
+  | `MALength` | Period for the moving average filter. |
+  | `size` | Number of contracts/shares per trade. |
+
+  ## Known Seasonal Tendencies by Currency Pair
+
+  Based on historical data, the following months have shown seasonal movements:
+
+  | Currency Pair | Months with Seasonal Tendencies |
+  |---------------|--------------------------------|
+  | **EUR/USD**   | April, May, September, December |
+  | **GBP/USD**   | February, April, May, December |
+  | **USD/JPY**   | March, April, October, December |
+  | **AUD/USD**   | April, May, December |
+  | **USD/CHF**   | February, March, April, May, September, December |
+  | **USD/CAD**   | January, March, April, November |
+
+
+  ## References
+
+  - Seasonal patterns in forex markets.
+  - Trend following concepts described in many trading research books.
+
+  ## Possible Variants
+
+  - Add a volatility filter (e.g., only trade if ATR > threshold).
+  - Add a volume filter (e.g., require average volume).
+  - Add a profit target (e.g., fixed percentage or ATR-based).
+  - Use a time stop (exit after X bars within the target month).
+}
