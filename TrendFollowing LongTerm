@@ -1,0 +1,85 @@
+{ 
+  === CODE ===
+  Long Term Trend Following
+  Logic: Directional filter (200 EMA) + entry on faster MA crossover + ATR trailing stop.
+}
+
+Inputs: 
+    FastLen(20),
+    SlowLen(50),
+    FilterLen(200),
+    ATRLen(14),
+    ATRMult(3),
+    size(1);
+
+Variables:
+    FastMA(0),
+    SlowMA(0),
+    FilterMA(0),
+    ATRvalue(0),
+    TrailStop(0),
+    TrendUp(False),
+    TrendDown(False);
+
+FastMA = Average(Close, FastLen);
+SlowMA = Average(Close, SlowLen);
+FilterMA = Average(Close, FilterLen);
+ATRvalue = AvgTrueRange(ATRLen);
+
+{ Determine long term trend filter }
+TrendUp = Close > FilterMA;
+TrendDown = Close < FilterMA;
+
+{ Entry logic: only in direction of filter }
+If MarketPosition = 0 Then Begin
+    If TrendUp And FastMA Crosses Over SlowMA Then
+        Buy size contract next bar at market;
+    If TrendDown And FastMA Crosses Under SlowMA Then
+        SellShort size contract next bar at market;
+End;
+
+{ ATR trailing stop for long positions }
+If MarketPosition = 1 Then Begin
+    TrailStop = Highest(High, FastLen) - (ATRMult * ATRvalue);
+    Sell size contract next bar at TrailStop stop;
+End;
+
+{ ATR trailing stop for short positions }
+If MarketPosition = -1 Then Begin
+    TrailStop = Lowest(Low, FastLen) + (ATRMult * ATRvalue);
+    BuyToCover size contract next bar at TrailStop stop;
+End;
+
+
+{ 
+  === ANALYSIS ===
+  # Long Term Trend Following
+
+  ## Implemented Logic
+  - **Long term filter:** 200 period EMA defines the primary trend. Only take long signals when price above the filter, short when below.
+  - **Entry signal:** Crossover of two faster moving averages (20/50). Provides timing within the trend direction.
+  - **Trailing stop:** ATR based stop that follows the price.  
+    - For long positions: `Highest(High, FastLen) - (ATRMult * ATRvalue)`  
+    - For short positions: `Lowest(Low, FastLen) + (ATRMult * ATRvalue)`  
+    The stop updates every bar based on the highest high (or lowest low) over the `FastLen` period, minus/plus a multiple of ATR.  
+    - **Note:** There is no special initial stop; the formula applies identically from the first bar in the trade.
+  - **No fixed target:** Let profits run until trailing stop is hit.
+
+  ## Why It's Interesting
+  - **Multi‑timeframe approach:** Filter (200) keeps you on the right side of major trends, while faster crossovers avoid late entries.
+  - **Dynamic exit:** ATR trailing stop adapts to volatility – wider stops in volatile markets, tighter in calm markets.
+  - **Long term bias:** Designed to hold positions for weeks or months (daily or weekly chart).
+  - **Robust parameters:** Classic values (20/50/200, ATR 3) known to work across many markets.
+  - **Simplified trailing stop:** Unlike many versions that set an initial stop based on entry price, this variant relies entirely on the channel of highs/lows, making it more reactive to recent price action.
+
+  ## References
+  - Classic "Moving Average Crossover" trend following systems (e.g., Turtle variant using 50/200).
+  - ATR trailing stop described by Welles Wilder.
+  - Used in many commodity trading advisors (CTAs) and long‑term trend funds.
+
+  ## Possible Variants (to explore in other snippets)
+  - Use exponential MA instead of simple.
+  - Add a volatility filter to avoid flat markets (e.g., require ATR > threshold).
+  - Implement a profit target (e.g., 3× ATR) for partial exits.
+  - Replace filter with ADX > 25.
+}
