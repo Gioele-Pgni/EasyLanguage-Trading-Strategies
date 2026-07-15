@@ -1,7 +1,7 @@
 { 
   === CODE ===
   Bollinger Bands Mean Reversion
-  Logic: Enter when price touches/extreme of bands, exit when returns to SMA
+  Logic: Entry when the price crosses the band, exit when returns to SMA
 }
 
 Inputs: 
@@ -20,7 +20,7 @@ StdDev = StandardDev(Close, Length, 1);
 UpperBand = SMA + (NumDevs * StdDev);
 LowerBand = SMA - (NumDevs * StdDev);
 
-
+// possible stop loss implementation
 value1 = entryprice - (averagetruerange(14)[1] * multi);
 value2 = entryprice + (averagetruerange(14)[1] * multi);
 
@@ -63,7 +63,6 @@ setexitonclose;
   === ANALYSIS ===
   # Bollinger Bands Mean Reversion intraday
 
-  **Source file:** `Bollinger_Mean_Reversion.txt`
 
   ## Implemented Logic
   - **Long Entry:** When price closes below the lower Bollinger Band (mean reversion expectation: price will bounce up).
@@ -77,7 +76,7 @@ setexitonclose;
 
   ## References
   - John Bollinger, *Bollinger on Bollinger Bands* (2002)
-  - Classic mean reversion strategy described in many trading research books.
+  - Classic mean reversion strategy 
 
   ## Possible Variants (to explore in other snippets)
   - Add a filter (e.g., RSI < 30 for long, > 70 for short).
