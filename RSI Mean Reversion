@@ -76,7 +76,8 @@ end;
 
   ## Why It's Interesting
 
-  - **RSI + Breakout combination:** Entry is not triggered solely by RSI extreme levels; it also requires a price confirmation (breakout beyond the recent high/low). This reduces false signals in ranging markets.
+  - **RSI + Breakout combination:** Entry is not triggered solely by RSI extreme levels;
+    it also requires a price confirmation (breakout beyond the recent high/low). 
   - **Dual exit:** Exit at market when RSI reverses (opposite extreme) OR ATR stop loss. Whichever occurs first closes the position.
   - **Dynamic stop loss:** ATR adapts the stop to current market volatility.
   - **Additional parameters:** `entryH`/`entryL` allow you to adjust the breakout sensitivity.
