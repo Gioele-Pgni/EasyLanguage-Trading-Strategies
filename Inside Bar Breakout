@@ -26,11 +26,11 @@ setexitonclose;
   === ANALYSIS ===
   # Inside Bar Breakout
 
-  **Source file:** `Inside_Bar_Breakout.txt`
 
   ## Implemented Logic
 
-  - **Inside Bar Definition:** A bar is "inside" when its high is ≤ the previous bar's high and its low is ≥ the previous bar's low (i.e., fully contained within the previous bar's range).
+  - **Inside Bar Definition:** A bar is "inside" when its high is ≤ the previous bar's high and its low is ≥ the previous bar's low 
+      (i.e., fully contained within the previous bar's range).
   
   - **Entry:** When an inside bar is detected, two stop orders are placed for the next bar:
     - **Long Entry:** `Buy stop` at the highest high of the last 5 bars (`Highest(High,5)`)
