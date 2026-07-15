@@ -47,7 +47,6 @@ end;
   === ANALYSIS ===
   # RSI Mean Reversion (modified version)
 
-  **Source file:** `RSI_Mean_Reversion.txt`
 
   ## Implemented Logic
 
