@@ -13,9 +13,13 @@ Welcome to the official repository of algorithmic trading strategies written in 
 ## Included Approaches
 
 | **Trend Following** | Exploits strong directional movements. Includes volatility filters to reduce false signals. | *Donchian Breakout, EMA Crossovers with trailing stops.* |
+
 | **Mean Reversion** | Captures reversals to the mean. Suitable for sideways or range-bound markets. | *Bollinger Bands reversal, RSI Extreme with divergences.* |
+
 | **Breakout / Volatility** | Enters positions when price surpasses key consolidation levels. | *ATR Channel Breakout, Keltner Channels.* |
+
 | **Statistical / ML** | Utilises non-linear models and residual analysis to generate signals. | *Dynamic linear regression, continuation probability models.* |
+
 | **Multi-Timeframe** | Strategies that use the context of a higher timeframe to filter trades on a lower one. | *Swing filter, trend alignment.* |
 
 
